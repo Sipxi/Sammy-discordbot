@@ -1,19 +1,27 @@
+from discord import channel
 from discord.ext import commands
 from extensions.customCog import CustomCog
 import discord
+from extensions.utils import owner_or_mods
+from extensions.utils import notify_member
 
-#TODO unload/reload/load cog
-#TODO brief
-#? Is not working?
+# TODO brief error handlers
+
 
 
 class Admin(CustomCog):
     def __init__(self, bot) -> None:
         super().__init__(bot)
 
+    @owner_or_mods()
+    @commands.command()
+    async def get_owner(self, ctx):
+        await ctx.send(ctx.guild.owner)
+
+    @owner_or_mods()
     @commands.command()
     async def status(self, ctx, *args) -> None:
-        #Making embed for status
+        # Making embed for status
         embed = discord.Embed(
             title=ctx.guild.name,
             description=f"Description: {ctx.guild.description}",
@@ -34,6 +42,91 @@ class Admin(CustomCog):
 
         await ctx.send(embed=embed)
 
+    @owner_or_mods()
+    @commands.command()
+    async def unload(self, ctx, cog_name: str) -> None:
+        try:
+            self.bot.unload_extension(f"cogs.{cog_name.lower()}")
+        except Exception as e:
+            await ctx.send("I can't unload this cog for some reason")
+            print(e)
+            return
+        await ctx.send("I've unloaded cog this cog, yay!")
 
+    @owner_or_mods()
+    @commands.command()
+    async def load(self, ctx, cog_name: str) -> None:
+        try:
+            self.bot.load_extension(f"cogs.{cog_name.lower()}")
+        except Exception as e:
+            await ctx.send("I can't load this cog for some reason")
+            print(e)
+            return
+        await ctx.send("I've loaded cog this cog, yay!")
+
+    @owner_or_mods()
+    @commands.command()
+    async def reload(self, ctx, cog_name: str) -> None:
+        try:
+            self.bot.unload_extension(f"cogs.{cog_name.lower()}")
+            self.bot.load_extension(f"cogs.{cog_name.lower()}")
+        except Exception as e:
+            await ctx.send("I can't reload this cog for some reason")
+            print(e)
+            return
+        await ctx.send("I've reloaded cog this cog, yay!")
+
+    @owner_or_mods()
+    @commands.command()
+    async def kick(
+        self, ctx, member: discord.Member = None, reason: str = "Because"
+    ) -> None:
+        if member is not None:
+            await ctx.guild.kick(member, reason=reason)
+            await ctx.send(f" I kicked this guy:( -------> {member}")
+        else:
+            await ctx.send(
+                "Couldn't kick this guy, maybe because I can't find him? Specify please with @mention"
+            )
+
+    @owner_or_mods()
+    @commands.command()
+    async def ban(
+        self, ctx, member: discord.Member = None, reason: str = "Horny morny you got banned:( "
+    ) -> None:
+        if member is not None:
+            await ctx.guild.ban(member, reason=reason)
+            await ctx.send(f" I banned this guy:( -------> {member}")
+        else:
+            await ctx.send(
+                "Couldn't ban this guy, maybe because I can't find him? Specify please with @mention"
+            )
+
+    @owner_or_mods()
+    @commands.command()
+    async def unban(self, ctx, member: str, reason: str = "Because") -> None:
+        bans = await ctx.guild.bans()
+        if member is not None:
+            for b in bans:
+                if b.user.name == member:
+                    
+                    await ctx.guild.unban(b.user, reason=reason)    
+                    await ctx.send(f" I unbanned this guy, happy to hear! -------> {member}")
+        else:
+            await ctx.send(
+                "Couldn't unban this guy, maybe because i can't find him? Don't use @mention btw, just write he's nickname:)"
+            )
+    
+    
+    @commands.command()
+    async def bang(self, ctx, member: discord.Member = None):
+        message = f"{ctx.author.name} banged you. Pew Pew 🔫"
+        await ctx.send("I banged him! Now he/she is dead, how dare you?:(")
+        await notify_member(member, message)
+    
+    @commands.command()
+    async def chr(self, ctx, member: discord.Member = None):
+        message = f"🎅🎅🎅Merry Christmas bro! That's from him:)--->{ctx.author.name} "
+        await notify_member(member, message)
 def setup(bot) -> None:
     bot.add_cog(Admin(bot))

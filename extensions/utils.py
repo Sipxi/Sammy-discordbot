@@ -1,10 +1,11 @@
 from settings import *
 from discord.ext import commands
 import time
+import discord
 
 
 #   Check admin privileges
-def owner_or_mods():
+def owner_or_mods() -> bool:
     original = commands.has_permissions(kick_members = True).predicate
     async def extended_check(ctx):
         if ctx.guild is None:
@@ -13,7 +14,17 @@ def owner_or_mods():
     return commands.check(extended_check)
 
 
-
+def is_channel_nsfw(channel: discord.TextChannel):
+    pass
+    
+async def notify_member(member: discord.Member, message: str):
+    if member is not None:
+        channel = member.dm_channel
+        if channel is None:
+            channel = await member.create_dm()
+        await channel.send(message)
+        
+    
 #Timer class
 #?  Multiple timers?
 class Timer:

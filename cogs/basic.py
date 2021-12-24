@@ -26,7 +26,7 @@ class Basic(CustomCog):
     @commands.command()
     @commands.guild_only()
     async def invite(self, ctx) -> None:
-        link = await ctx.channel.create_invite(max_age=1)
+        link = await ctx.channel.create_invite(max_age=100)
         await ctx.send(link)
         
         

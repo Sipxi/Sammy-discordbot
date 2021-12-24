@@ -1,15 +1,16 @@
 from discord.ext import commands
+from discord.ext.commands.core import guild_only
 from extensions.customCog import CustomCog
-from TextToOwO.owo import text_to_owo
 import asyncpraw
-from settings import REDDIT_ID, REDDIT_SECRET, REDDIT_ENABLED_SUBREDDITS, DATA_DIR
-import discord
-import json
+from discord.ext import tasks
 
+from settings import REDDIT_ID, REDDIT_SECRET, REDDIT_ENABLED_SUBREDDITS
+
+from redditstorageparser.redditstorage import RedditStorage
+import discord
 
 #TODO comments, brief, hourlyreddit
 #?different reddits/nsfw commands?
-#? json is needed?
 
 
 async def make_reddit_embed(submission) -> discord.Embed:
@@ -39,40 +40,23 @@ class Reddit(CustomCog):
     def __init__(self, bot):
         super().__init__(bot)
         self.reddit = None
-        self.subreddit_json_path = DATA_DIR + "/subreddits.json"
-        self.subreddits = self.get_subreddits()
-
+        self.storage = RedditStorage()
         if REDDIT_ID and REDDIT_SECRET:
             self.reddit = asyncpraw.Reddit(
                 client_id=REDDIT_ID,
                 client_secret=REDDIT_SECRET,
                 user_agent="Sammy Draitor:%s:1.0" % REDDIT_ID,
             )
+    @commands.Cog.listener()
+    async def on_ready(self) -> None:
+        """Bot ready event"""
+        # self.test.start() 
 
-    def get_subreddits(self) -> dict:
-        """Get subreddits from subreddits local json file"""
-        try:
-            with open(
-                self.subreddit_json_path, "r", encoding="utf-8"
-            ) as subreddits_file:
-                subreddits = json.load(subreddits_file)
-        except FileNotFoundError:
-            print("Error FNFE")
-            with open(
-                self.subreddit_json_path, "w", encoding="utf-8"
-            ) as subreddits_file:
-                subreddits = {}
-                json.dump(subreddits, subreddits_file, indent=4) #!indent? max json capacity?
-        return subreddits
-
-    def save_subreddits(self) -> None:
-        """Save subreddits to local json file"""
-        with open(self.subreddit_json_path, "w", encoding="utf-8") as subreddits_file:
-            json.dump(self.subreddits, subreddits_file, indent=4)
 
     @commands.command()
     async def reddit(self, ctx, user_subreddit: str = "") -> None:
         async with ctx.channel.typing():
+            # If user doesn't specify subreddit, take default one
             chosen_subreddit = await self.reddit.subreddit(
                 REDDIT_ENABLED_SUBREDDITS[0], fetch=True
             )
@@ -88,12 +72,46 @@ class Reddit(CustomCog):
                         return
                     else:
                         chosen_subreddit = user_subreddit
-            submission = await chosen_subreddit.random()
-            embed = await make_reddit_embed(submission)
-            await ctx.send(embed=embed)
-            self.subreddits.update({submission.id: []})
-            self.save_subreddits()
+            await self.send_subreddit(ctx.channel.id, chosen_subreddit)
+    
 
-
+    
+    
+    @guild_only()
+    @commands.command()
+    async def subscribe_reddit(self, ctx, user_subreddit: str= "") -> None:
+        async with ctx.channel.typing():
+            if self.reddit:
+                # If instance start
+                if user_subreddit in REDDIT_ENABLED_SUBREDDITS:
+                    if user_subreddit is not None:
+                        self.storage.add_subscribiton(user_subreddit, ctx.channel.id)
+                        await ctx.send(f"I've successfully subscribed this channel to reddit {user_subreddit} thingy!")
+                    else:
+                        await ctx.send("Hey, tell me the subreddit i have to subscribe on~")
+                        return
+                else:
+                        await ctx.send("Hey, tell me the subreddit i have to subscribe on~")
+                        return
+                    
+    
+    # @tasks.loop(hours=1)
+    # async def test(self):
+    #     channels = self.storage.get_subscribtions()
+    #     # fetching subreddits
+    #     for subreddit_name in channels:
+    #         subreddit = await self.reddit.subreddit(subreddit_name, fetch=True)
+    #         await self.send_subreddit(channels[subreddit_name], subreddit)
+    #         print("Hourly post was successful at")
+    #         print(f"Channel {channels[subreddit_name]}")
+    #         print(f"Theme:  {subreddit_name}")
+            
+    async def send_subreddit(self, channel_id, user_subreddit) -> None:
+        channel = self.bot.get_channel(channel_id)
+        submission = await user_subreddit.random()
+        embed = await make_reddit_embed(submission)
+        await channel.send(embed=embed)       
+            
+             
 def setup(bot) -> None:
     bot.add_cog(Reddit(bot))
