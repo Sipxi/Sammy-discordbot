@@ -1,0 +1,2 @@
+class isSubscribed(Exception):
+    pass
