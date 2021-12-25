@@ -1,2 +1,2 @@
 # Sammy-discordbot
- A intelligent discord bot
+ An intelligent discord bot
