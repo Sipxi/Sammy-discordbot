@@ -7,9 +7,7 @@ from TextToOwO.owo import text_to_owo
 class Basic(CustomCog):
     def __init__(self, bot) -> None:
         super().__init__(bot)
-        
-    
-    
+
     
     #? Unneeded line?
     @commands.Cog.listener()
@@ -17,20 +15,20 @@ class Basic(CustomCog):
         print(ex)
         await ctx.send("Please check with !help the usage of this command")
 
-    @commands.command()
+    @commands.command(help = "Sending your text with owo thingy:)")
     async def owo(self, ctx) -> None:
         #Send the text with owo thing
         await ctx.send(text_to_owo(ctx.message.content))
     
     
-    @commands.command()
+    @commands.command(help = "I'll create invite for the server")
     @commands.guild_only()
     async def invite(self, ctx) -> None:
         link = await ctx.channel.create_invite(max_age=100)
         await ctx.send(link)
         
         
-    @commands.command()
+    @commands.command(help ="Pong:)")
     async def ping(self, ctx) -> None:
         await ctx.send("Pong!")
     

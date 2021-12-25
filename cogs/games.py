@@ -12,7 +12,7 @@ class Games(CustomCog):
         super().__init__(bot)
     
     
-    @commands.command(usage="rock | paper | scissor")
+    @commands.command(usage="rock | paper | scissor", description = "You can play Rock/Paper/Scissor with me!")
     async def rps(self, ctx, user_choice: RockPaperScissorParser = RockPaperScissorParser(RPS.ROCK)) -> None:
         game_instance = RPSGame()
 

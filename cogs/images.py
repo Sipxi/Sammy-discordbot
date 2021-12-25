@@ -9,7 +9,7 @@ class Images(CustomCog):
     def __init__(self, bot) -> None:
         super().__init__(bot)
 
-    @commands.command()
+    @commands.command(help = "Sends a random picture of a cat")
     async def cat(self, ctx) -> None:
         async with ctx.channel.typing():
             async with aiohttp.ClientSession() as cs:
@@ -20,7 +20,7 @@ class Images(CustomCog):
                     embed.set_footer(text="A picture of a cat! Meow;)")
                     await ctx.send(embed=embed)
 
-    @commands.command()
+    @commands.command(help = "Sends a random picture of a fox")
     async def fox(self, ctx) -> None:
         async with ctx.channel.typing():
             async with aiohttp.ClientSession() as cs:
@@ -31,7 +31,7 @@ class Images(CustomCog):
                     embed.set_footer(text="A picture of a foxy! :)")
                     await ctx.send(embed=embed)
 
-    @commands.command()
+    @commands.command(help = "Sends a random picture of a dog")
     async def dog(self, ctx) -> None:
         async with ctx.channel.typing():
             async with aiohttp.ClientSession() as cs:

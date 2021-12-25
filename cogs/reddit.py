@@ -9,11 +9,9 @@ from settings import REDDIT_ID, REDDIT_SECRET, REDDIT_ENABLED_SUBREDDITS
 from redditstorageparser.redditstorage import RedditStorage
 import discord
 
+from extensions.customError import *
 
-from customError import isSubscribed
-
-# TODO comments, brief
-# ?different reddits/nsfw commands?
+# TODO comments, briefs, unsubscribe from all reddits?
 
 
 async def make_reddit_embed(submission) -> discord.Embed:
@@ -55,11 +53,11 @@ class Reddit(CustomCog):
     @commands.Cog.listener()
     async def on_ready(self) -> None:
         """Bot ready event"""
-        self.test.start()
+        self.reddit_loop.start()
         
         
     # Send reddit by command
-    @commands.command()
+    @commands.command(help= "Send random reddit post")
     async def reddit(self, ctx, user_subreddit: str = "") -> None:
         async with ctx.channel.typing():
             # If user doesn't specify subreddit, take default one
@@ -79,7 +77,7 @@ class Reddit(CustomCog):
                 await ctx.send(f"I can't send this type of subreddit ->{user_subreddit}, please choose one from: {', '.join(REDDIT_ENABLED_SUBREDDITS)}")
 
     @guild_only() 
-    @commands.command()
+    @commands.command(help = "Subscribe the channel to given reddit posts")
     async def subscribe_reddit(self, ctx, user_subreddit: str = "") -> None:
         async with ctx.channel.typing():
             # If user input is none, return
@@ -97,16 +95,18 @@ class Reddit(CustomCog):
                 await ctx.send(f"I can't subscribe to this type of subreddit -> {user_subreddit}, please choose one from: {', '.join(REDDIT_ENABLED_SUBREDDITS)}")
 
     @tasks.loop(seconds=10)
-    async def test(self) -> None:
+    async def reddit_loop(self) -> None:
         subscribtions = self.storage.get_subscribtions()
         # fetching subreddits
         for subreddit_name in subscribtions:
             subreddit = await self.reddit.subreddit(subreddit_name, fetch=True)
             for id in subscribtions[subreddit_name]:
                 await self.send_subreddit(id, subreddit)
+                print("########################")
                 print("Hourly post was successful at")
                 print(f"Channel {id}")
                 print(f"Theme:  {subreddit_name}")
+                print("########################")
 
 
     async def send_subreddit(self, channel_id, user_subreddit) -> None:
@@ -120,15 +120,17 @@ class Reddit(CustomCog):
         embed = await make_reddit_embed(submission)
         await channel.send(embed=embed)
 
-    @commands.command()
+    @commands.command(help= "Unsubscribe the channel to given reddit posts")
     async def unsubscribe_reddit(self, ctx, user_subreddit: str = "") -> None:
         async with ctx.channel.typing():
             if user_subreddit is not None:
-                self.storage.delete_subscribtions(user_subreddit, ctx.channel.id)
-                await ctx.send(f"I've successfully unsubscribed this channel from {user_subreddit} reddit posts!")
+                try:
+                    self.storage.delete_subscribtions(user_subreddit, ctx.channel.id)
+                    await ctx.send(f"I've successfully unsubscribed this channel from {user_subreddit} reddit posts!")
+                except badName:
+                    await ctx.send(f"Hmmmm, I think this channel is subscribed to {user_subreddit}")
             else:
                 await ctx.send("Hey, what do i have to unsubscribe?")
-
-
+                
 def setup(bot) -> None:
     bot.add_cog(Reddit(bot))

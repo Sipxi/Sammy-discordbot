@@ -14,6 +14,13 @@ def owner_or_mods() -> bool:
     return commands.check(extended_check)
 
 
+def permission_check(ctx) -> bool:
+    return ctx.author.guild_permissions.kick_members
+
+
+
+    
+
 def is_channel_nsfw(channel: discord.TextChannel):
     pass
     

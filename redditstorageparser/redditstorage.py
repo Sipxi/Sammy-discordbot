@@ -2,7 +2,7 @@ import json
 
 from settings import DATA_DIR
 
-from customError import isSubscribed
+from extensions.customError import *
 
 class RedditStorage:
     def __init__(self) -> None:
@@ -89,6 +89,6 @@ class RedditStorage:
                 if not self.subscribtions[user_subreddit]:
                     self.subscribtions.pop(user_subreddit)
         else:
-            raise Exception("Couldn't find sub")
+            raise badName
         self.save_subscribtions()
                 

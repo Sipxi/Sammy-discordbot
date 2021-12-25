@@ -2,24 +2,26 @@ from discord import channel
 from discord.ext import commands
 from extensions.customCog import CustomCog
 import discord
-from extensions.utils import owner_or_mods
 from extensions.utils import notify_member
+from extensions.utils import owner_or_mods
 
+from extensions.utils import permission_check
 # TODO brief error handlers
 
 
 
-class Admin(CustomCog):
+
+class Admin(CustomCog, description="Admin commands"):
     def __init__(self, bot) -> None:
         super().__init__(bot)
-
+        
+    async def cog_check(self, ctx):
+         return permission_check(ctx)
+    
+    
+    
     @owner_or_mods()
-    @commands.command()
-    async def get_owner(self, ctx):
-        await ctx.send(ctx.guild.owner)
-
-    @owner_or_mods()
-    @commands.command()
+    @commands.command(help = "I'll get the status of the server")
     async def status(self, ctx, *args) -> None:
         # Making embed for status
         embed = discord.Embed(
@@ -42,8 +44,8 @@ class Admin(CustomCog):
 
         await ctx.send(embed=embed)
 
-    @owner_or_mods()
-    @commands.command()
+
+    @commands.command(help = "I'll unlaod the cog")
     async def unload(self, ctx, cog_name: str) -> None:
         try:
             self.bot.unload_extension(f"cogs.{cog_name.lower()}")
@@ -53,8 +55,8 @@ class Admin(CustomCog):
             return
         await ctx.send("I've unloaded cog this cog, yay!")
 
-    @owner_or_mods()
-    @commands.command()
+
+    @commands.command(help = "I'll load the cog")
     async def load(self, ctx, cog_name: str) -> None:
         try:
             self.bot.load_extension(f"cogs.{cog_name.lower()}")
@@ -64,8 +66,8 @@ class Admin(CustomCog):
             return
         await ctx.send("I've loaded cog this cog, yay!")
 
-    @owner_or_mods()
-    @commands.command()
+
+    @commands.command(help = "I'll reload the cog")
     async def reload(self, ctx, cog_name: str) -> None:
         try:
             self.bot.unload_extension(f"cogs.{cog_name.lower()}")
@@ -76,8 +78,8 @@ class Admin(CustomCog):
             return
         await ctx.send("I've reloaded cog this cog, yay!")
 
-    @owner_or_mods()
-    @commands.command()
+
+    @commands.command(help= "I'll kick the member")
     async def kick(
         self, ctx, member: discord.Member = None, reason: str = "Because"
     ) -> None:
@@ -89,8 +91,7 @@ class Admin(CustomCog):
                 "Couldn't kick this guy, maybe because I can't find him? Specify please with @mention"
             )
 
-    @owner_or_mods()
-    @commands.command()
+    @commands.command(help= "I'll ban the member")
     async def ban(
         self, ctx, member: discord.Member = None, reason: str = "Horny morny you got banned:( "
     ) -> None:
@@ -102,8 +103,8 @@ class Admin(CustomCog):
                 "Couldn't ban this guy, maybe because I can't find him? Specify please with @mention"
             )
 
-    @owner_or_mods()
-    @commands.command()
+
+    @commands.command(help = "I'll unban the member")
     async def unban(self, ctx, member: str, reason: str = "Because") -> None:
         bans = await ctx.guild.bans()
         if member is not None:
@@ -118,10 +119,10 @@ class Admin(CustomCog):
             )
     
     
-    @commands.command()
+    @commands.command(help = "I'll bang the player in DM", description = "I'll bang the player in DM")
     async def bang(self, ctx, member: discord.Member = None):
         message = f"{ctx.author.name} banged you. Pew Pew 🔫"
-        await ctx.send("I banged him! Now he/she is dead, how dare you?:(")
+        await ctx.send("I banged him/her! Now he/she is dead, how dare you?:(")
         await notify_member(member, message)
     
     @commands.command()
