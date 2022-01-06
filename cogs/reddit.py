@@ -58,11 +58,13 @@ class Reddit(CustomCog):
         
     # Send reddit by command
     @commands.command(help= "Send random reddit post")
-    async def reddit(self, ctx, user_subreddit: str = "") -> None:
+    async def reddit(self, ctx, user_subreddit: str = None) -> None:
         async with ctx.channel.typing():
-            # If user doesn't specify subreddit, take default one
-            chosen_subreddit = await self.reddit.subreddit(REDDIT_ENABLED_SUBREDDITS[0], fetch=True)
-            
+            # If user doesn't specify subreddit, send default one
+            if user_subreddit is None:
+                chosen_subreddit = await self.reddit.subreddit(REDDIT_ENABLED_SUBREDDITS[0], fetch=True)
+                await self.send_subreddit(ctx.channel.id, chosen_subreddit)          
+                return
             # If user_subreddit is allowed fetch it
             if user_subreddit in REDDIT_ENABLED_SUBREDDITS:
                 user_subreddit = await self.reddit.subreddit(user_subreddit, fetch=True)
@@ -128,7 +130,8 @@ class Reddit(CustomCog):
                     self.storage.delete_subscribtions(user_subreddit, ctx.channel.id)
                     await ctx.send(f"I've successfully unsubscribed this channel from {user_subreddit} reddit posts!")
                 except badName:
-                    await ctx.send(f"Hmmmm, I think this channel is subscribed to {user_subreddit}")
+                    print("hi")
+                    await ctx.send(f"Hmmmm, I don't think this channel is subscribed to {user_subreddit}")
             else:
                 await ctx.send("Hey, what do i have to unsubscribe?")
                 

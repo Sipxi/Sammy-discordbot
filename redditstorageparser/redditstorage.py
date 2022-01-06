@@ -81,13 +81,11 @@ class RedditStorage:
 
     def delete_subscribtions(self, user_subreddit, channel_id):
         #If subreddit is in subscribed subrredits
-        if user_subreddit in self.subscribtions:
-            # Unsubscribe subscription from this channel
-            if channel_id in self.subscribtions[user_subreddit]:
-                self.subscribtions[user_subreddit].remove(channel_id)
-                # If subrredit doesn't have any channels, delete it
-                if not self.subscribtions[user_subreddit]:
-                    self.subscribtions.pop(user_subreddit)
+        if user_subreddit in self.subscribtions and channel_id in self.subscribtions[user_subreddit]:
+            self.subscribtions[user_subreddit].remove(channel_id)
+            # If subrredit doesn't have any channels, delete it
+            if not self.subscribtions[user_subreddit]:
+                self.subscribtions.pop(user_subreddit)
         else:
             raise badName
         self.save_subscribtions()

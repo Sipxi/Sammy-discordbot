@@ -80,7 +80,8 @@ class Help(CustomCog):
             help_message = title_embed()
             # iterating trough cogs, gathering descriptions
             cogs_desc = ""
-            for cog in self.bot.cogs:
+            for cog in sorted(self.bot.cogs):
+                print(cog)
                 valid = False
                 for command in self.bot.get_cog(cog).get_commands():
                     valid = await predicate(command)

@@ -1,9 +1,9 @@
 from discord.ext import commands
 from extensions.customCog import CustomCog
 from TextToOwO.owo import text_to_owo
-
-
-
+import random
+import discord
+import re
 class Basic(CustomCog):
     def __init__(self, bot) -> None:
         super().__init__(bot)
@@ -32,6 +32,25 @@ class Basic(CustomCog):
     async def ping(self, ctx) -> None:
         await ctx.send("Pong!")
     
+    
+    @commands.command(description="Ask any question to the bot.", help = "use !sammy please [question]")
+    async def sammy_please(self, ctx, *, question: str):
+        
+        answers = ['It is certain.', 'It is decidedly so.', 'You may rely on it.', 'Without a doubt.',
+                   'Yes - definitely.', 'As I see, yes.', 'Most likely.', 'Outlook good.', 'Yes.',
+                   'Signs point to yes.', 'Reply hazy, try again.', 'Ask again later.', 'Better not tell you now.',
+                   'Cannot predict now.', 'Concentrate and ask again later.', 'Don\'t count on it.', 'My reply is no.',
+                   'My sources say no.', 'Outlook not so good.', 'Very doubtful.']
+        
+        embed = discord.Embed(
+            title="**My Answer:**",
+            description=f"{random.choice(answers)}",
+            color=0x9C84EF
+        )
+        embed.set_footer(
+            text=f"The question was: {question}"
+        )
+        await ctx.send(embed=embed)
     
 def setup(bot) -> None:
     bot.add_cog(Basic(bot))
