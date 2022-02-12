@@ -58,7 +58,7 @@ class Reddit(CustomCog):
         
     # Send reddit by command
     @commands.command(help= "Send random reddit post")
-    async def reddit(self, ctx, user_subreddit: str = None) -> None:
+    async def reddit_please(self, ctx, user_subreddit: str = None) -> None:
         async with ctx.channel.typing():
             # If user doesn't specify subreddit, send default one
             if user_subreddit is None:

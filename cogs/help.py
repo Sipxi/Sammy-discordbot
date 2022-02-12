@@ -5,9 +5,10 @@ from extensions.customCog import CustomCog
 from extensions.customError import badName
 
 
-# ? Global prefix for guild?
+# ? Global prefix/version for guild?
+# ? If every command in cog is hidden or protected, can you check cog/command with help message?
 prefix = "!"
-version = "1.0.0"
+version = "1.0.1"
 """This custom help command is a perfect replacement for the default one on any Discord Bot written in Discord.py!
 However, you must put "bot.remove_command('help')" in your bot, and the command must be in a cog for it to work.
 """
@@ -73,23 +74,24 @@ class Help(CustomCog):
                 return await cmd.can_run(ctx)
             except commands.CommandError:
                 return False
-
+        
+        async def validateCog(cog_name) -> bool:
+            for command in self.bot.get_cog(cog_name).get_commands():
+                if await predicate(command) and not command.hidden:
+                    return True
+    
         # checks if cog parameter was given
         # if not: sending all modules and commands not associated with a cog
         if not input:
             help_message = title_embed()
             # iterating trough cogs, gathering descriptions
             cogs_desc = ""
-            for cog in sorted(self.bot.cogs):
-                print(cog)
-                valid = False
-                for command in self.bot.get_cog(cog).get_commands():
-                    valid = await predicate(command)
-                    # if command is not hidden and valid break
-                    if not command.hidden and valid:
-                        break
-                if valid:
-                    cogs_desc += f"`{cog}` {self.bot.cogs[cog].description}\n"
+            
+            for cog_name in self.bot.cogs:
+                valid_cog = await validateCog(cog_name)
+                if valid_cog:
+                    cogs_desc += f"`{cog_name}` {self.bot.cogs[cog_name].description}\n"
+                
 
             # adding 'list' of cogs to embed
             help_message.add_field(name="Modules", value=cogs_desc, inline=False)
@@ -97,7 +99,7 @@ class Help(CustomCog):
             # setting information about author
             help_message.add_field(
                 name="About",
-                value=f"The Bot's is developed by {ctx.guild.owner}, based on discord.py.\n\
+                value=f"The Bot's is developed by Sipxi, based on discord.py.\n\
                                     Please visit https://github.com/Sipxi/Sammy-discordbot to submit ideas or bugs.",
             )
             help_message.set_footer(text=f"Bot is running {version}")
@@ -106,12 +108,13 @@ class Help(CustomCog):
         # trying to find matching cog and it's commands
         elif len(input) == 1:
             for cog in self.bot.cogs:
-                if cog.lower() == input[0].lower():
+                #   If cog a command
+                if cog.lower() == input[0].lower(): 
                     help_message = title_embed()
                     # getting commands from cog
                     for command in self.bot.get_cog(cog).get_commands():
-                        valid = await predicate(command)
-                        # if cog is not hidden
+                        valid = await validateCog(cog)
+                        # if cog is not hidden 
                         if not command.hidden and valid:
                             help_message.add_field(
                                 name=f"`{prefix}{command.name}`",
@@ -122,15 +125,18 @@ class Help(CustomCog):
                         else:
                             help_message = no_permission_embed()
                     break
-            # If input not found
+            #   If input not found
             else:
                 try:
                     for cog in self.bot.cogs:
                         for command in self.bot.get_cog(cog).get_commands():
                             if command.name.lower() == input[0].lower():
+                                #   Found a command name
                                 raise StopIteration
                     else:
+                        #   Didn't found anything
                         raise badName
+                               
                 # If found a command
                 except StopIteration:
                     valid = await predicate(command)
@@ -144,6 +150,7 @@ class Help(CustomCog):
                         # send no permissions messege
                     else:
                         help_message = no_permission_embed()
+                        
                 # If didn't find command and cog
                 except badName:
                     title = "What's that?!"
