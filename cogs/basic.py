@@ -3,7 +3,7 @@ from extensions.customCog import CustomCog
 from TextToOwO.owo import text_to_owo
 import random
 import discord
-import re
+from extensions.utils import notify_member
 class Basic(CustomCog):
     def __init__(self, bot) -> None:
         super().__init__(bot)
@@ -32,6 +32,14 @@ class Basic(CustomCog):
     async def ping(self, ctx) -> None:
         await ctx.send("Pong!")
     
+    
+    @commands.command(
+        help="... my creator is very bad", description="... my creator is very bad"
+    )
+    async def fuck(self, ctx, member: discord.Member = None):
+        message = f"{ctx.author.name} cursed you. Pew Pew"
+        await ctx.send("I cursed him/her! Now he/she is sad, i hate you!:(")
+        await notify_member(member, message)
     
     @commands.command(description="Ask any question to the bot.", help = "use !sammy please [question]")
     async def sammy_please(self, ctx, *, question: str):

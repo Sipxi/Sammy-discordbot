@@ -8,4 +8,8 @@ class CustomCog(commands.Cog):
         self.bot = bot
         self.hidden = False
     
-    
+    async def cog_before_invoke(self, ctx: commands.Context) -> commands.Context:
+        """Code that runs before invoked command.
+        Used for logging chat commands.
+        """
+        return ctx

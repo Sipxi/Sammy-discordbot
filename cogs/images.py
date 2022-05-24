@@ -5,6 +5,8 @@ import discord
 
 #TODO comments, brief,
 
+
+
 class Images(CustomCog):
     def __init__(self, bot) -> None:
         super().__init__(bot)
@@ -13,7 +15,7 @@ class Images(CustomCog):
     async def cat(self, ctx) -> None:
         async with ctx.channel.typing():
             async with aiohttp.ClientSession() as cs:
-                async with cs.get("https://aws.random.cat/meow") as r:
+                async with cs.get("http:\/\/aws.random.cat\/meow") as r:
                     data = await r.json()
                     embed = discord.Embed(title="Meow")
                     embed.set_image(url=data["file"])
@@ -23,24 +25,26 @@ class Images(CustomCog):
     @commands.command(help = "Sends a random picture of a fox")
     async def fox(self, ctx) -> None:
         async with ctx.channel.typing():
-            async with aiohttp.ClientSession() as cs:
-                async with cs.get("https://randomfox.ca/floof/") as r:
+            async with aiohttp.ClientSession()  as cs:
+                async with cs.get("https://randomfox.ca/floof") as r:
                     data = await r.json()
                     embed = discord.Embed(title="Foxy")
                     embed.set_image(url=data["image"])
                     embed.set_footer(text="A picture of a foxy! :)")
                     await ctx.send(embed=embed)
 
+
     @commands.command(help = "Sends a random picture of a dog")
     async def dog(self, ctx) -> None:
         async with ctx.channel.typing():
-            async with aiohttp.ClientSession() as cs:
+            async with aiohttp.ClientSession()  as cs:
                 async with cs.get("https://dog.ceo/api/breeds/image/random") as r:
                     data = await r.json()
                     embed = discord.Embed(title="Woof")
                     embed.set_image(url=data["message"])
                     embed.set_footer(text="A picture of a dog! Woof-woof!")
                     await ctx.send(embed=embed)
+
 
 
 def setup(bot) -> None:

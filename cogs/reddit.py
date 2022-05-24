@@ -130,7 +130,6 @@ class Reddit(CustomCog):
                     self.storage.delete_subscribtions(user_subreddit, ctx.channel.id)
                     await ctx.send(f"I've successfully unsubscribed this channel from {user_subreddit} reddit posts!")
                 except badName:
-                    print("hi")
                     await ctx.send(f"Hmmmm, I don't think this channel is subscribed to {user_subreddit}")
             else:
                 await ctx.send("Hey, what do i have to unsubscribe?")

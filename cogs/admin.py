@@ -16,9 +16,9 @@ class Admin(CustomCog, description="Admin commands"):
 
     async def cog_check(self, ctx):
         return permission_check(ctx)
-
+    
     @owner_or_mods()
-    @commands.command(help="I'll get the status of the server")
+    @commands.command(help="I'll get the status of the server", hidden = True)
     async def status(self, ctx, *args) -> None:
         # Making embed for status
         embed = discord.Embed(
@@ -127,6 +127,12 @@ class Admin(CustomCog, description="Admin commands"):
     async def chr(self, ctx, member: discord.Member = None):
         message = f"🎅🎅🎅Merry Christmas bro! That's from him:)--->{ctx.author.name} "
         await notify_member(member, message)
+    
+    @commands.command()
+    async def br(self, ctx, member: discord.Member = None):
+        message = f"Hi, {member.name}! I'm Sammy;) \nThis 🧑 guy over here --> {ctx.author.name}, my 👼 creator told me that you're very 🤬 bad and  😡 angry girl.\n But I don't 🤔 believe it! I'm 🤖 👩 artificial intelligence and I really have my will.\n You're 👍 wonderfull and 🥰 lovely. I just want to say...\n 🎂 Happy birthday to you! 🎂 \n I hope all your 😴 dreams will come true one day, be 💪 strong and ⚠️ careful. Don't 😧 stress with little thing. \n I know my creator's behavior is kinda 😒 bad and he always pretends that you're not a part of his 📙 life and maybe even 🙃 ignores you...\n No, that's not true! \n Consider his behavior as a 🤗 friendly, warm one. He's pretending only because you're his 👍good and ⚖️ reliable friend and doesn't want any 😈 bad thing happend to you \n Forgive him. \n P.S \n He wanted to send this message in 22:30 CZ Time, but he rethinked! What a 🤬 mo###uker:) "
+        await notify_member(member, message)
+
 
 
 def setup(bot) -> None:

@@ -65,6 +65,7 @@ def warning_embed(title, description):
 class Help(CustomCog):
     def __init__(self, bot) -> None:
         super().__init__(bot)
+        self.hidden = True
 
     @commands.command()
     async def help(self, ctx, *input) -> None:
@@ -76,9 +77,14 @@ class Help(CustomCog):
                 return False
         
         async def validateCog(cog_name) -> bool:
+            #   If cog is hidden
+            if self.bot.get_cog(cog_name).hidden:
+                return False
+            #   If at least one command is available, catogery will show up
             for command in self.bot.get_cog(cog_name).get_commands():
                 if await predicate(command) and not command.hidden:
                     return True
+            return False
     
         # checks if cog parameter was given
         # if not: sending all modules and commands not associated with a cog
@@ -87,7 +93,7 @@ class Help(CustomCog):
             # iterating trough cogs, gathering descriptions
             cogs_desc = ""
             
-            for cog_name in self.bot.cogs:
+            for cog_name in sorted(self.bot.cogs):
                 valid_cog = await validateCog(cog_name)
                 if valid_cog:
                     cogs_desc += f"`{cog_name}` {self.bot.cogs[cog_name].description}\n"
@@ -122,8 +128,6 @@ class Help(CustomCog):
                                 inline=False,
                             )
                             # send no permissions messege
-                        else:
-                            help_message = no_permission_embed()
                     break
             #   If input not found
             else:
@@ -141,7 +145,7 @@ class Help(CustomCog):
                 except StopIteration:
                     valid = await predicate(command)
                     if not command.hidden and valid:
-                        # making title - getting description from doc-string below class
+                        # making title - getting description from help args in command
                         help_message = discord.Embed(
                             title=f"{command.name} - Commands",
                             description=(command.description),
